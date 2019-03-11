@@ -1,0 +1,17 @@
+[
+    {
+        "content":"测试消息1",
+        "timeStr":"2019-03-06",
+        "hasFile":true
+    },
+    {
+        "content":"测试消息2",
+        "timeStr":"2019-03-06",
+        "hasFile":false
+    },
+    {
+        "content":"测试消息3",
+        "timeStr":"2019-03-06",
+        "hasFile":true
+    }
+]

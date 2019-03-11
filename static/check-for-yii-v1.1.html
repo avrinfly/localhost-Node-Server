@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <title>审核页面</title>
+    <style>
+        body{
+            margin:0;
+        }
+        ul{
+            padding-left: 0;
+        }
+        ul>li{
+            list-style: none;
+        }
+        h3{
+            margin-left: 20px;
+        }
+        .center{
+            text-align: center;
+        }
+        button{
+            margin: 50px 0 0 20px;
+            color: #fff;
+            background-color: #5cb85c;
+            border-color: #4cae4c;
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        button:hover{
+            color: #fff;
+            background-color: #449d44;
+            border-color: #398439;
+        }
+        button:active,button:active:focus{
+            background-image: none;
+            outline: 0;
+            -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+            outline: 5px auto -webkit-focus-ring-color;
+            outline-offset: -2px;
+        }
+        button[disabled]{
+            cursor: not-allowed;
+            filter: alpha(opacity=65);
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            opacity: .65;
+        }
+        .auditError{
+            background-color: #d9534f;
+            border-color: #d43f3a;
+        }
+        .auditError:hover{
+            background-color: #c9302c;
+            border-color: #ac2925;
+        }
+        .content{
+            display: flex;
+            justify-content: space-between;
+        }
+        #nav{
+            margin: 0 30px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        .templet{
+            width: 25%;
+            display: block;
+            height: 600px;
+        }
+        .derived-content{
+            position: relative;
+            padding-left: 5px;
+            width: 75%;
+            margin: 0;
+            padding: 0;
+        }
+        .derived-content button{
+            height: 10%;
+            position: absolute;
+            top: 0;
+        }
+        #iframe{
+            display: block;
+            width: 300px;
+            height: 85%;
+            margin-left: 20px;
+            border: 1px solid #eee;
+        }
+        #next{
+            right: 0;
+        }
+        #navItem{
+            display: flex;
+            justify-content: flex-start;
+            margin: 0;
+        }
+        #navItem>li{
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            width: 6em;
+            height: 72px;
+            line-height: 72px;
+        }
+        #navItem>li:hover{
+            cursor: pointer;
+            color:#ff7542;
+        }
+        #importItem>li{
+            padding: 50px 0 0 100px;
+            /* text-align: center; */
+            display: none;
+            word-break: break-all;
+        }
+        .show{
+            display: block !important;
+        }
+        .hide{
+            display: none;
+        }
+        .warning{
+            color: red;
+            font-weight: bold;
+            margin: 10px 0 0 20px;
+        }
+        .select{
+            color:#ff7542;
+        }
+        /* 全屏遮罩层 */
+        .popupComponent{
+            display: none;
+            z-index: 2;
+        }
+        .lightBoxMask{
+            background: rgba(0, 0, 0, .7);
+        }
+        .fullScreen{
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            /* width: 100%;
+            height: 100%; */
+        }
+        .lightBoxContact{
+            text-align: center;
+            overflow: auto;
+        }
+        .lightBoxMaxHeight{
+            display: inline-block;
+            vertical-align: middle;
+            height: 100%;
+            overflow: hidden;
+        }
+        .lightBoxContent{
+            display: inline-block;
+            width: 300px;
+            position: relative;
+            padding: 10px;
+            background: #fff;
+            border: 5px solid #00b4ff;
+            vertical-align: middle;
+            zoom: 1;
+        }
+        .lightBoxSubmit{
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #ccc;
+        }
+        .lightBoxSubmit input{
+            font-size: 12px;
+            padding: 0 10px;
+            overflow: visible;
+            margin: 0 5px;
+        }
+        .inputBox{
+            width: 250px;
+            min-height: 20px;
+            max-height: 300px;
+            margin: 10px auto 0;
+            padding: 5px 10px;
+            outline: 0;
+            border: 1px solid #a0b3d6;
+            font-size: 12px;
+            /* text-align: center; */
+            line-height: 24px;
+            word-wrap: break-word;
+            overflow-x: hidden;
+            overflow-y: auto;
+            font-family: tahoma, arial, "Microsoft YaHei";
+            border-color: rgba(82, 168, 236, .8);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 8px rgba(82, 168, 236, .6);
+        }
+        .inputBoxCount{
+            position: relative;
+            height: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: right;
+            margin: 0 20px;
+        }
+        .inputBoxCount span:nth-child(1){
+            position: absolute;
+            left: -6px;
+            color: red;
+            display: none;
+        }
+        .lightConfirm{
+            margin: 10px 0 0 0;
+        }
+        .lightCancel{
+            margin: 10px 0 0 45px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="templet">
+            <h3>模板内容:</h3>
+            <iframe id="iframe" srcdoc='' frameborder="0"></iframe>
+        </div>
+        <div id="derived-content" class="derived-content">
+            <h3 class="center">待审核JS文件</h3>
+            <div id="nav">
+                <ul id="navItem"></ul>
+            </div>        
+            <ul id="importItem"></ul>
+        </div>
+    </div>    
+    <textarea id="template_content" class="hide"><?php echo urldecode(base64_decode($model->FContent));?></textarea>
+    <div id="jsLimitWarning" class="hide">请注意：外链JS文件数量已超出限制（上限：<span id="limitNum"></span>个）</div>
+    <div id="cssLimitWarning" class="hide">请注意：该模板含有外链CSS文件！</div>
+    <button onclick="goback()">审核通过</button>
+    <button class="auditError" onclick="showLayer('lightBox')">审核不通过</button>
+    <div class="popupComponent fullScreen" id="lightBox">  
+        <div class="lightBoxMask fullScreen"></div>  
+        <div class="lightBoxContact fullScreen">
+            <span class="lightBoxMaxHeight"></span>
+            <div class="lightBoxContent">  
+                审核失败的原因：
+                <textarea id="inputBox" name="auditErrorText" auto type="text" class="inputBox" maxlength="200"></textarea>
+                <div id="inputBoxCount" class="inputBoxCount">
+                    <span>字数已超出限制！</span>
+                    <span>0</span>/200
+                </div>
+                <div class="lightBoxSubmit">  
+                    <button class="lightBtn lightConfirm" onclick="submitValue()">提交</button>
+                    <button class="lightBtn lightCancel auditError" onclick="hideLayer('lightBox')">取消</button>  
+                </div>  
+            </div>  
+        </div>  
+    </div>
+    <script type="text/javascript">
+        var jsLimit = 5; // JS外链文件限制的数量
+        var jsCount = 0; // JS外链文件数量
+        var template_content = document.getElementById('template_content');
+        var cssLimitWarning = document.getElementById('cssLimitWarning');
+        var jsLimitWarning = document.getElementById('jsLimitWarning');
+        var inputBoxCount = document.getElementById('inputBoxCount');
+        var importItem = document.getElementById('importItem');
+        var inputBox = document.getElementById('inputBox');
+        var limitNum = document.getElementById('limitNum');
+        var navItem = document.getElementById('navItem');
+        var iframe = document.getElementById('iframe');
+        var nav = document.getElementById('nav'); 
+        iframe.srcdoc = template_content.value;
+        var middleware = template_content.value;
+        var jsContent = middleware.match(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi);
+        var cssContent = middleware.match(/(<link.*\s+href=(?:"[^"]*"|'[^']*')[^<]*>)/gi);
+        // navItem.style.cssText = 'width:'+96*content.length+'px';
+        cssContent == null ? '' : cssLimitWarning.setAttribute('class','show warning');
+        jsContent.map((item,index) => {
+            if (item.indexOf('src=') > 0) { //存在src则认为是外链
+                jsCount +=1;
+                //var startUrl = item.indexOf('h');
+                //var endUrl = item.indexOf('js');
+                //var externalLink = item.slice(startUrl,endUrl+2); //slice不包括最后的元素，故需加上
+                // var linkArray = item.match(/(?!'|")(http(s)?)?(:)?\/\/(?:.*)(?='|")/gi);
+                // var externalLink = linkArray && linkArray[0] || ''; 
+                var externalLink = $(item).attr('src');
+                createImportItem(importItem,externalLink,'con_'+index,true);
+                createImportItem(navItem,'外链JS'+(index+1),'nav_'+index);
+            }
+            else {
+                var startCut = item.indexOf('>');
+                var endCut = item.lastIndexOf('<');
+                var inEmbed = item.slice(startCut+1,endCut).trim();
+                createImportItem(importItem,inEmbed,'con_'+index);
+                createImportItem(navItem,'内联JS'+(index+1),'nav_'+index);
+            }
+        })
+
+        window.onload = function() {
+            navItem.getElementsByTagName('li')[0].className = 'select';
+            importItem.getElementsByTagName('li')[0].className = 'show';
+            limitNum.innerText = jsLimit
+            if (jsCount > jsLimit) {
+                jsLimitWarning.setAttribute('class','show warning');
+            }
+            tabCheck();
+        }
+        /*
+        * @param {string} fatherNode  the node of target father
+        * @param {String} content  the content to import
+        * @param {index} childNode's subscript
+        * @param {boolean} is it an external chain
+        */
+        function createImportItem(fatherNode,content,index,boolean) { //导出具体JS内容，内链则导出其完整内容，外链则导出其外链地址
+            var li = document.createElement('li');
+            if (boolean) {
+                var link = document.createElement('a');
+                link.setAttribute('href',content);
+                link.setAttribute('target','_blank');
+                link.setAttribute('title',content);
+                link.innerText = content;
+                li.appendChild(link);
+            }
+            else{
+                li.innerText = content;
+            }
+            li.setAttribute('id',index);
+            fatherNode.appendChild(li);
+        }
+        /**
+        * 文本框根据输入内容自适应高度
+        * @param   {HTMLElement}   输入框元素
+        * @param   {Number}        设置光标与输入框保持的距离(默认0)
+        * @param   {Number}        设置最大高度(可选)
+        */
+        var autoTextarea = function (elem, extra, maxHeight) {
+            extra = extra || 0;
+            var isFirefox = !!document.getBoxObjectFor || 'mozInnerScreenX' in window,
+            isOpera = !!window.opera && !!window.opera.toString().indexOf('Opera'),
+            addEvent = function (type, callback) {
+                    elem.addEventListener ?
+                    elem.addEventListener(type, callback, false) :
+                    elem.attachEvent('on' + type, callback);
+            },
+            getStyle = elem.currentStyle ? function (name) {
+                    var val = elem.currentStyle[name];
+                    if (name === 'height' && val.search(/px/i) !== 1) {
+                        var rect = elem.getBoundingClientRect();
+                        return rect.bottom - rect.top - parseFloat(getStyle('paddingTop')) - parseFloat(getStyle('paddingBottom')) + 'px';        
+                    };
+                    return val;
+            } : function (name) {
+                return getComputedStyle(elem, null)[name];
+            },
+            minHeight = parseFloat(getStyle('height'));
+            elem.style.resize = 'none';
+            var change = function () {
+                var scrollTop, height,
+                    padding = 0,
+                    style = elem.style;
+
+                if (elem._length === elem.value.length) return;
+                elem._length = elem.value.length;
+
+                if (!isFirefox && !isOpera) {
+                    padding = parseInt(getStyle('paddingTop')) + parseInt(getStyle('paddingBottom'));
+                };
+                scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+                elem.style.height = minHeight + 'px';
+                if (elem.scrollHeight > minHeight) {
+                    if (maxHeight && elem.scrollHeight > maxHeight) {
+                        height = maxHeight - padding;
+                        style.overflowY = 'auto';
+                    } 
+                    else {
+                        height = elem.scrollHeight - padding;
+                        style.overflowY = 'hidden';
+                    };
+                    style.height = height + extra + 'px';
+                    scrollTop += parseInt(style.height) - elem.currHeight;
+                    document.body.scrollTop = scrollTop;
+                    document.documentElement.scrollTop = scrollTop;
+                    elem.currHeight = parseInt(style.height);
+                };
+            };
+    
+            addEvent('propertychange', change);
+            addEvent('input', change);
+            addEvent('focus', change);
+            change();
+        };
+        //tab切换
+        function tabCheck() {
+            var navs = navItem.getElementsByTagName('li');
+            var lis = importItem.getElementsByTagName('li');
+            for (var i = 0; i < navs.length; i++) {
+                navs[i].index = i;
+                navs[i].onclick = function() {
+                    for (var j = 0; j < navs.length; j++) {
+                        navs[j].className = '';
+                        lis[j].className = '';
+                    }
+                    this.className = 'select';
+                    lis[this.index].className = 'show';
+                }
+            }
+        }
+        /*
+        * @param {string} type  the type of request
+        * @param {String} url  the Address of request
+        * @param {boolean} asynchronous or synchronous 
+        * @param {boolean} is it an external chain
+        */
+        function ajaxRequest(type,url,boolean,) {
+            var xhr;
+            xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+            xhr.open(type,url,boolean);
+            xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+            xhr.send(obj);
+        }
+        function goback() {
+            var xhr;
+            var id = '<?php echo $model->FId;?>';
+            // var url = "/index.php?r=t-datacard-template-customize/pass&id=" + id;
+            var url = "/index.php?r=t-datacard-template-customize/ajax-pass&id=" + id;
+            xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+            // xhr.open('GET','./test.js',true);
+            xhr.open('GET', url, true);
+            xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+            xhr.send();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.code == 0) {
+                        alert('审核通过');
+                        window.history.back();
+                    }
+                    else{
+                        alert('审核失败，请重新审核');                      
+                    }
+                }
+            }
+        }
+        inputBox.onkeyup = function() {
+            var _html = this.value;
+            if (_html.length > 199) {
+                this.innerHTML = _html.substr(0,199);
+                inputBoxCount.children[0].style.display = 'block';
+                inputBoxCount.style.color = 'red';
+                this.blur();
+            }
+            else{
+                inputBoxCount.children[0].style.display = 'none';
+                inputBoxCount.style.color = 'black';
+            }
+            inputBoxCount.children[1].innerText = _html.length;
+
+        }
+        function showLayer(id) {   
+            document.getElementById(id).style.display ="block";
+            if (id == 'lightBox') {// 认为是打开弹出层
+                autoTextarea(inputBox);
+            }  
+        }  
+        function hideLayer(id) {
+            document.getElementById(id).style.display ="none";  
+        }  
+        function submitValue() {
+            var content = document.getElementById('inputBox').value;
+            if (content == '') {
+                alert('请填写原因!');
+            }
+            else {
+                var xhr;
+                var id = '<?php echo $model->FId;?>';
+                var url = "/index.php?r=t-datacard-template-customize/un-pass&id=" + id+"&content="+content;
+                xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+                xhr.open('GET',url,true);
+                xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+                // xhr.send("content="+content+"&id="+id);
+                xhr.send();
+                xhr.onreadystatechange = function() {
+                    if(xhr.readyState == 4 && xhr.status == 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data.code == 0) {
+                            document.getElementById('lightBox').style.display ="none"; 
+                            window.history.back();
+                        }
+                        else {
+                            alert(data.msg);
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
